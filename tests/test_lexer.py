@@ -1,7 +1,5 @@
 import unittest
 
-from ply.lex import LexToken
-
 from pybcn.lexer import *
 
 
