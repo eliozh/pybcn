@@ -1,6 +1,8 @@
+from itertools import product
 from typing import List, Mapping, Optional, Union
 
 from pybcn.lexer import lexer
+from pybcn.logical_vector import LogicalVector
 
 
 class SmallBCN:
@@ -51,6 +53,9 @@ class SmallBCN:
             ))
         self.m = len(self.input_variables)
         self.M = 2 ** self.m
+
+        self._generate_assr()
+
         if init_states is None:
             self.states = dict(zip(self.variables, [0] * len(self.variables)))
             return
@@ -59,6 +64,29 @@ class SmallBCN:
         for var, state in zip(self.variables, init_states):
             assert state == 0 or state == 1, f"state should be 0 or 1, got {state}"
             self.states[var] = state
+
+    def _generate_assr(self):
+        """
+        Generate Algebraic State Space Representation (ASSR) of the BCN.
+        """
+        L = [0] * (self.M * self.N)
+        for state_l in product(*([[0, 1]] * self.n)):
+            for input_l in product(*([[0, 1]] * self.m)):
+                state_v = LogicalVector.from_states(list(state_l))
+                input_v = LogicalVector.from_states(list(input_l))
+
+                self.set_states(dict(zip(self.variables, state_l)))
+                inputs = dict(zip(self.input_variables, input_l))
+                self.update_network(inputs)
+
+                next_state_l = self.get_states("list")
+                next_state_v = LogicalVector.from_states(next_state_l)
+
+                i = state_v.pos - 1
+                j = input_v.pos - 1
+                L[i + j * self.N] = next_state_v.pos
+
+        self.L = L
 
     def update_variable(self, variable: str, inputs: Mapping[str, int]) -> int:
         """

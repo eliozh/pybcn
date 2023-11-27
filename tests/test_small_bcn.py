@@ -37,3 +37,11 @@ class TestSmallBCN(unittest.TestCase):
         bcn = SmallBCN(d, [1, 0, 1])
         bcn.update_network({"u1": 1, "u2": 0})
         self.assertEqual(bcn.get_states("list"), [1, 1, 0])
+
+    def test_generate_assr(self):
+        d = {"x1": "x2 | x3", "x2": "x1 & u1", "x3": "(u1 | x2) & (!x1)"}
+        bcn = SmallBCN(d)
+        self.assertEqual(
+            bcn.L,
+            [2, 2, 2, 6, 3, 3, 3, 7, 4, 4, 4, 8, 3, 3, 4, 8]
+        )
