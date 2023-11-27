@@ -21,8 +21,8 @@ class TestSmallBCN(unittest.TestCase):
     def test_set_states(self):
         d = {"x1": "x2 & x3 ^ u1", "x2": "x1 | x3", "x3": "x1 & u2"}
         bcn = SmallBCN(d, [1, 0, 1])
-        bcn.set_states({"x1": 1, "x2": 1, "x3": 0, "x4": 0})
-        self.assertEqual(bcn.states, {"x1": 1, "x2": 1, "x3": 0})
+        bcn.set_states({"x2": 1, "x3": 1, "x1": 0, "x4": 0})
+        self.assertEqual(bcn.states, {"x1": 0, "x2": 1, "x3": 1})
         self.assertRaises(AssertionError, bcn.set_states, {"x1": 1, "x2": 1})
 
     def test_get_states(self):

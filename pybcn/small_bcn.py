@@ -101,15 +101,16 @@ class SmallBCN:
     def set_states(self, states: Mapping[str, int]):
         """
         Set the states of the variables.
+        Make sure the order of states remains.
         :param state: <variable, value>
         """
-        states = dict(filter(
-            lambda item: item[0] in self.variables,
-            states.items()
-        ))
-        assert len(states) == len(
-            self.variables), f"not enough states are set, got {len(states)}, need {len(self.variables)}"
-        self.states = states
+        states_formatted = {}
+        try:
+            for var in self.variables:
+                states_formatted[var] = states[var]
+        except KeyError as e:
+            raise AssertionError(f"state missed key(s), {e}")
+        self.states = states_formatted
 
     def get_states(self, format: Union["list", "dict"]) -> Union[List, Mapping]:
         if format == "list":
