@@ -1,3 +1,5 @@
+import sys
+from collections import deque
 from itertools import product
 from typing import List, Mapping, Optional, Union
 
@@ -147,6 +149,69 @@ class SmallBCN:
             return self.states
         else:
             raise AssertionError(f"format should be 'list' or 'dict'")
+
+    def one_step_states(self, state: int):
+        """
+        return the states that can be reached from current state in one step.
+        :param state: current state
+        :return: the states and the corresponding inputs
+        """
+        res = {}
+        for k in range(self.M):
+            r = self.L[k * self.N + state - 1]
+            if r not in res:
+                res[r] = []
+            res[r].append(k)
+
+        return res
+
+    def optimal_time_control(self, init: int, dest: int):
+        """
+        Optimal Time Control with BFS.
+        :param init: pos of corresponding vector of initial state
+        :param dest: pos of corresponding vector of destination state
+        """
+        s = set((init,))
+        q = deque([(init, [init], [])])
+        T = sys.maxsize
+        res = []
+
+        while len(q) != 0:
+            state, seq, c_seq = q.popleft()
+            if len(seq) >= T:
+                continue
+            for next_state, inputs in self.one_step_states(state).items():
+                new_seq = seq + [next_state]
+                new_c_seq = c_seq + [inputs]
+                if next_state == dest:
+                    T = len(seq)
+                    res.append((new_seq, new_c_seq))
+                if next_state not in s:
+                    s.add(next_state)
+                    q.append((next_state, new_seq, new_c_seq))
+        return res
+
+    def optimal_time_control_2(self, init: int, dest: int):
+        T = 0
+        q = deque([(init, [init], [])])
+        res = []
+        flag = True
+
+        while flag:
+            T += 1
+            while len(q[0][1]) == T:
+                state, seq, c_seq = q.popleft()
+                for next_state, inputs in self.one_step_states(state).items():
+                    new_seq = seq + [next_state]
+                    new_c_seq = c_seq + [inputs]
+                    q.append((next_state, new_seq, new_c_seq))
+
+            for i in q:
+                if i[0] == dest:
+                    res.append((i[1], i[2]))
+                    flag = False
+
+        return res
 
     def __str__(self):
         return f"{{variables: {self.variables}, inputs: {self.input_variables}, states: {list(self.states.values())}}}"

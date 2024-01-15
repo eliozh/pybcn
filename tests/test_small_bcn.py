@@ -45,3 +45,12 @@ class TestSmallBCN(unittest.TestCase):
             bcn.L,
             [2, 2, 2, 6, 3, 3, 3, 7, 4, 4, 4, 8, 3, 3, 4, 8]
         )
+
+    def test_one_step_states(self):
+        d = {"x1": "x2 | x3", "x2": "x1 & u1", "x3": "(u1 | x2) & (!x1)"}
+        bcn = SmallBCN(d)
+        states = list(bcn.one_step_states(8))
+        self.assertEqual(
+            states,
+            [(7, 1), (8, 2)]
+        )
