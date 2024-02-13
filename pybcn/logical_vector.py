@@ -21,7 +21,7 @@ class LogicalVector:
     def to_list(self) -> list:
         """
         Convert to vector form.
-        :return: the corresponding logical vector
+        :return: the corresponding state list
         """
         result = []
         pos = self.pos

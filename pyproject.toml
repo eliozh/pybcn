@@ -8,6 +8,9 @@ readme = "README.md"
 [tool.poetry.dependencies]
 python = "^3.10"
 ply = "^3.11"
+rustworkx = "^0.14.0"
+pillow = "^10.2.0"
+pydot = "^2.0.0"
 
 
 [build-system]

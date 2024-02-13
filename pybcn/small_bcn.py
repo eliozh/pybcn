@@ -20,6 +20,7 @@ class SmallBCN:
         :param init_states: initial states, set to all 0 if it is None
         :return: a SmallBCN instance
         """
+        self.d = d
         self.variables = []
         self.list_of_tokens = {}
         self.input_variables = []
@@ -128,6 +129,11 @@ class SmallBCN:
             new_states[variable] = state
         self.set_states(new_states)
 
+    def set_states_i(self, states: int):
+        states_v = LogicalVector(states, self.N).to_list()
+        states_formatted = dict(zip(self.variables, states_v))
+        self.states = states_formatted
+
     def set_states(self, states: Mapping[str, int]):
         """
         Set the states of the variables.
@@ -140,7 +146,7 @@ class SmallBCN:
                 states_formatted[var] = states[var]
         except KeyError as e:
             raise AssertionError(f"state missed key(s), {e}")
-        self.states = states_formatted
+        self.states = states_formatted        
 
     def get_states(self, format: Union["list", "dict"]) -> Union[List, Mapping]:
         if format == "list":
@@ -149,6 +155,19 @@ class SmallBCN:
             return self.states
         else:
             raise AssertionError(f"format should be 'list' or 'dict'")
+
+    def get_inputs(self, inputs):
+        if isinstance(inputs, int):
+            input_l = LogicalVector(inputs, self.M).to_list()
+            return dict(zip(self.input_variables, input_l))
+        elif isinstance(inputs, dict):
+            inputs_formatted = {}
+            for input_var in self.input_variables:
+                inputs_formatted[input_var] = inputs[input_var]
+            return LogicalVector.from_states(list(inputs_formatted.values())).pos
+
+    def next_state(self, state, inputs):
+        return self.L[(inputs - 1) * self.N + state - 1]
 
     def one_step_states(self, state: int):
         """
@@ -161,7 +180,7 @@ class SmallBCN:
             r = self.L[k * self.N + state - 1]
             if r not in res:
                 res[r] = []
-            res[r].append(k)
+            res[r].append(k + 1)
 
         return res
 
@@ -189,7 +208,7 @@ class SmallBCN:
                 if next_state not in s:
                     s.add(next_state)
                     q.append((next_state, new_seq, new_c_seq))
-        return res
+        return T, res
 
     def optimal_time_control_2(self, init: int, dest: int):
         T = 0
@@ -211,7 +230,7 @@ class SmallBCN:
                     res.append((i[1], i[2]))
                     flag = False
 
-        return res
+        return T, res
 
     def __str__(self):
         return f"{{variables: {self.variables}, inputs: {self.input_variables}, states: {list(self.states.values())}}}"
