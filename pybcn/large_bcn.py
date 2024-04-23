@@ -95,6 +95,8 @@ class LargeBCN:
                 and start_block_idx != end_block_idx):
                 condensation_graph.add_edge(start_block_idx, end_block_idx, None)
 
+        self.condensation_graph = condensation_graph
+
         topo_seq = rx.topological_sort(condensation_graph)
         self.A = []
         self.B = []
@@ -141,7 +143,7 @@ class LargeBCN:
             self.dests.append(block_dest_v.pos)
 
         # 2. initialize
-        queues = {k: deque([(init, [init], [])]) for k in self.A}
+        queues = {k: deque([(self.inits[k], [self.inits[k]], [])]) for k in self.A}
         T = 0
         flag = True
         find_flag = False
@@ -232,45 +234,6 @@ class LargeBCN:
                     break
 
         return T, cur_seq_comb
-
-            
-            # cur_seq_comb = None
-            # find_flag_2 = False
-            # for k in self.B:
-            #     block = self.blocks[k]
-            #     self_control = 2 ** len(block.exterior_inputs)
-            #     if cur_seq_comb is None:
-            #         iterator = self.iterate(res, self_control, T)
-            #     else:
-            #         iterator = self.iterate_2(cur_seq_comb, self_control, T)
-            #     for seq_comb in iterator:
-            #         cur_state = self.inits[k]
-            #         cur_seq = [[cur_state], []]
-            #         for t in range(T):
-            #             projection = {}
-            #             for pred in self.pred_list[k]:
-            #                 self.blocks[pred].set_states_i(seq_comb[pred][0][t])
-            #                 projection.update(self.blocks[pred].get_states("dict"))
-            #                 projection.update(self.blocks[pred].get_inputs(seq_comb[pred][1][t]))
-            #             if self_control != 1:
-            #                 projection.update(block.get_inputs(seq_comb["self"][t]))
-            #             inputs = block.get_inputs(projection)
-            #             next_state = block.next_state(cur_state, inputs)
-            #             cur_seq[0].append(next_state)
-            #             cur_seq[1].append(inputs)
-            #             cur_state = next_state
-            #         if cur_state != self.dests[k]:
-            #             find_flag_2 = False
-            #         else:
-            #             cur_seq_comb = seq_comb
-            #             cur_seq_comb[k] = cur_seq
-            #             find_flag_2 = True
-            #             break
-            #     if find_flag_2 == False:
-            #         flag = True
-            #         break
-            #     else:
-            #         flag = False
 
     def iterate(self, res: dict):
         ret = {}

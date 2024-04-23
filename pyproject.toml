@@ -11,6 +11,8 @@ ply = "^3.11"
 rustworkx = "^0.14.0"
 pillow = "^10.2.0"
 pydot = "^2.0.0"
+matplotlib = "^3.8.3"
+tqdm = "^4.66.2"
 
 
 [build-system]
